@@ -1,11 +1,16 @@
 import SwiftUI
 
 struct ContentView: View {
-    
+    // MARK: - Properties
     @State private var isAnimating: Bool = false
     @State private var imageScale: CGFloat = 1
     @State private var imageOffset: CGSize = .zero
     @State private var isDrawerOpen = false
+    
+    let pages: [Page] = pagesData
+    @State private var pageIndex: Int = 1
+    
+    // MARK: - Methods
     
     func resetImageState() {
         withAnimation(.spring()) {
@@ -14,12 +19,17 @@ struct ContentView: View {
         }
     }
     
+    func currentPage() -> String {
+        pages[pageIndex - 1].imageName
+    }
+    
+    // MARK: - Content
     var body: some View {
         NavigationView {
             ZStack {
                 Color.clear
                 // MARK: - Page Image
-                Image("magazine-front-cover")
+                Image(currentPage())
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(10)
@@ -142,6 +152,20 @@ struct ContentView: View {
                         }
                     
                     // MARK: - Thumbnails
+                    ForEach(pages) { page in
+                        Image(page.thumbnailName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80)
+                            .cornerRadius(8)
+                            .shadow(radius: 4)
+                            .opacity(isDrawerOpen ? 1 : 0)
+                            .animation(.easeOut(duration: 0.5), value: isDrawerOpen)
+                            .onTapGesture {
+                                isAnimating = true
+                                pageIndex = page.id
+                            }
+                    }
                     Spacer()
                 }
                 .padding(EdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8))
